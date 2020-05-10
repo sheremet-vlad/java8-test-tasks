@@ -1,9 +1,6 @@
 package com.expertsoft;
 
-import com.expertsoft.model.Student;
-import com.expertsoft.model.Subject;
-import com.expertsoft.model.SubjectMark;
-import com.expertsoft.model.Teacher;
+import com.expertsoft.model.*;
 import org.assertj.core.util.Sets;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +14,12 @@ public class UniversityAnalyzerTest {
 
     private List<Student> students;
 
+    private List<Teacher> teachers;
+
+    private List<Department> departments;
+
+    private Department mathDep;
+
     @Test
     public void getMinSubjectMark() {
         int minSubjectMark = universityAnalyzer.getMinSubjectMark(students.stream(), 1);
@@ -26,7 +29,7 @@ public class UniversityAnalyzerTest {
 
     @Test
     public void getAverageTeacherMark() {
-        double averageTeacherMark =universityAnalyzer.getAverageTeacherMark(students.stream(), 2);
+        double averageTeacherMark = universityAnalyzer.getAverageTeacherMark(students.stream(), 2);
 
         Assert.assertEquals(8.4, averageTeacherMark, 0.001);
     }
@@ -55,9 +58,52 @@ public class UniversityAnalyzerTest {
         Assert.assertEquals(4, sortedStudents.get(3).getId());
     }
 
+    @Test
+    public void getSubjectsByAcademicPerformance() {
+        List<Integer> subjectsByAcademicPerformance = universityAnalyzer.getSubjectsByAcademicPerformance(students.stream());
+
+        Assert.assertEquals(5, subjectsByAcademicPerformance.get(0).intValue());
+        Assert.assertEquals(3, subjectsByAcademicPerformance.get(1).intValue());
+        Assert.assertEquals(2, subjectsByAcademicPerformance.get(2).intValue());
+        Assert.assertEquals(1, subjectsByAcademicPerformance.get(3).intValue());
+        Assert.assertEquals(4, subjectsByAcademicPerformance.get(4).intValue());
+    }
+
+    @Test
+    public void getSubjectWhichLeadsMostOfAllTeachers() {
+        Subject subjectThatMostTeachersLead = universityAnalyzer.getSubjectThatMostTeachersLead(teachers.stream());
+
+        Assert.assertEquals(3, subjectThatMostTeachersLead.getId());
+    }
+
+    @Test
+    public void getGraduatedExcellentStudents() {
+        List<Student> graduatedExcellentStudents = universityAnalyzer.getGraduatedExcellentStudents(students.stream());
+
+        Assert.assertEquals(1, graduatedExcellentStudents.size());
+        Assert.assertEquals(2, graduatedExcellentStudents.get(0).getId());
+    }
+
+    @Test
+    public void getHeadOfTheMostSuccessfulDepartment() {
+        Teacher headOfTheMostSuccessfulDepartment = universityAnalyzer.getHeadOfTheMostSuccessfulDepartment(departments.stream());
+
+        Assert.assertEquals(3, headOfTheMostSuccessfulDepartment.getId());
+    }
+
+    @Test
+    public void getSubjectsThatHeadTeachesInHisDepartment() {
+        List<Subject> subjectsThatHeadTeachesInHisDepartment = universityAnalyzer.getSubjectsThatHeadTeachesInHisDepartment(mathDep);
+
+        Assert.assertEquals(1, subjectsThatHeadTeachesInHisDepartment.size());
+        Assert.assertEquals(1, subjectsThatHeadTeachesInHisDepartment.get(0).getId());
+    }
+
     @Before
     public void setUp() {
         students = new ArrayList<>();
+        teachers = new ArrayList<>();
+        departments = new ArrayList<>();
         int currentYear = LocalDate.now().getYear();
         Student studentVlad = new Student(1, "Vlad", "Waltanov", new HashSet<>(), LocalDate.of(currentYear - 22, 1, 1));
         Student studentIgor = new Student(2, "Igor", "Yaremchuk", new HashSet<>(), LocalDate.of(currentYear - 21, 1, 1));
@@ -73,6 +119,12 @@ public class UniversityAnalyzerTest {
         Teacher teacherAndrei = new Teacher(1, "Andrei", "Ivanov", Sets.newLinkedHashSet(mathematics, chemistry, physics));
         Teacher teacherMax = new Teacher(2, "Max", "Zhilin", Sets.newLinkedHashSet(computerScience, literature, physics));
         Teacher teacherDima = new Teacher(3, "Dima", "Petrov", Sets.newLinkedHashSet(mathematics, physics, literature));
+
+        mathDep = new Department(1, new HashSet<>(), new HashSet<>(), teacherAndrei);
+        mathDep.getStudents().addAll(Arrays.asList(studentVlad, studentDima));
+        mathDep.getSubjects().addAll(Arrays.asList(mathematics, computerScience));
+        Department physDep = new Department(1, new HashSet<>(), new HashSet<>(), teacherDima);
+        physDep.getStudents().addAll(Arrays.asList(studentIgor, studentAlex));
 
         SubjectMark markVladMathematics = new SubjectMark(studentVlad.getId(), mathematics.getId(), teacherAndrei.getId(), 9);
         SubjectMark markVladPhysics = new SubjectMark(studentVlad.getId(), physics.getId(), teacherAndrei.getId(), 6);
@@ -115,6 +167,7 @@ public class UniversityAnalyzerTest {
                 markDimaPhysics));
 
         students.addAll(Arrays.asList(studentVlad, studentIgor, studentAlex, studentDima));
-
+        teachers.addAll(Arrays.asList(teacherDima, teacherAndrei, teacherMax));
+        departments.addAll(Arrays.asList(mathDep, physDep));
     }
 }
