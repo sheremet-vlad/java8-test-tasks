@@ -87,7 +87,7 @@ public class UniversityAnalyzer {
     }
 
     /**
-     * Should return sorted students list.
+     * Should sort excellent students by surname.
      * A student is considered an excellent student if his average mark is at least 8.
      * A student is considered a graduate if his age is not less than 21.
      *
