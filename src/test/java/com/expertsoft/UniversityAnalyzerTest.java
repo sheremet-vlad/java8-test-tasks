@@ -22,23 +22,23 @@ public class UniversityAnalyzerTest {
 
     @Test
     public void getMinSubjectMark() {
-        int minSubjectMark = universityAnalyzer.getMinSubjectMark(students.stream(), 1);
+        OptionalInt minSubjectMark = universityAnalyzer.getMinSubjectMark(students.stream(), 1);
 
-        Assert.assertEquals(7, minSubjectMark);
+        Assert.assertEquals(7, minSubjectMark.getAsInt());
     }
 
     @Test
     public void getAverageTeacherMark() {
-        double averageTeacherMark = universityAnalyzer.getAverageTeacherMark(students.stream(), 2);
+        OptionalDouble averageTeacherMark = universityAnalyzer.getAverageTeacherMark(students.stream(), 2);
 
-        Assert.assertEquals(8.4, averageTeacherMark, 0.001);
+        Assert.assertEquals(8.4, averageTeacherMark.getAsDouble(), 0.001);
     }
 
     @Test
     public void getAverageStudentAgeInYears() {
-        double averageStudentsAge = universityAnalyzer.getAverageStudentAgeInYears(students.stream());
+        int minStudentAge = universityAnalyzer.getMinStudentAgeInYears(students.stream());
 
-        Assert.assertEquals(21.25, averageStudentsAge, 0.001);
+        Assert.assertEquals(19, minStudentAge);
     }
 
     @Test

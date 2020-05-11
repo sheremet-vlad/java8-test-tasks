@@ -2,7 +2,7 @@ package com.expertsoft;
 
 import com.expertsoft.model.*;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class UniversityAnalyzer {
@@ -13,9 +13,9 @@ public class UniversityAnalyzer {
      * @param subjectId find min mark for subject with such id
      * @return
      */
-    public int getMinSubjectMark(Stream<Student> students, int subjectId) {
+    public OptionalInt getMinSubjectMark(Stream<Student> students, int subjectId) {
         //TODO
-        return 0;
+        return null;
     }
 
     /**
@@ -25,26 +25,27 @@ public class UniversityAnalyzer {
      * @param teacherId find average given mark for teacher with such id
      * @return
      */
-    public Double getAverageTeacherMark(Stream<Student> students, int teacherId) {
+    public OptionalDouble getAverageTeacherMark(Stream<Student> students, int teacherId) {
         //TODO
         return null;
     }
 
     /**
-     * Should return average students age (years). Need to count the number of full years
+     * Should return min students age (years). Need to count the number of full years.
      *
-     * @param students students stream
+     * @param students not empty students stream
      * @return
      */
-    public double getAverageStudentAgeInYears(Stream<Student> students) {
+    public Integer getMinStudentAgeInYears(Stream<Student> students) {
         //TODO
-        return 0.0;
+        return null;
     }
 
     /**
      * Should return student with highest average mark.
+     * If two or more students have the same average mark, then return any of this students.
      *
-     * @param students students stream
+     * @param students not empty students stream
      * @return
      */
     public Student getStudentWithHighestAverageMark(Stream<Student> students) {
@@ -77,8 +78,9 @@ public class UniversityAnalyzer {
 
     /**
      * Should return the subject that most teachers lead.
+     * If two or more subject lead the same count of teacher, then return any of this subjects.
      *
-     * @param teachers teachers stream
+     * @param teachers not empty teachers stream
      * @return
      */
     public Subject getSubjectThatMostTeachersLead(Stream<Teacher> teachers) {
@@ -87,7 +89,7 @@ public class UniversityAnalyzer {
     }
 
     /**
-     * Should return sorted students list.
+     * Should sort excellent students by surname.
      * A student is considered an excellent student if his average mark is at least 8.
      * A student is considered a graduate if his age is not less than 21.
      *
@@ -101,8 +103,9 @@ public class UniversityAnalyzer {
 
     /**
      * Should return the head of the a department whose students have the highest average mark.
+     * If students from two or more departments have the same average mark, then return any head of this departments.
      *
-     * @param departments departments stream
+     * @param departments not empty departments stream
      * @return
      */
     public Teacher getHeadOfTheMostSuccessfulDepartment(Stream<Department> departments) {
