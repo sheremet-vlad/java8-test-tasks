@@ -2,7 +2,13 @@ package com.expertsoft;
 
 import com.expertsoft.model.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
+import java.util.Comparator;
+import java.util.function.IntSupplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UniversityAnalyzer {
@@ -14,8 +20,11 @@ public class UniversityAnalyzer {
      * @return
      */
     public OptionalInt getMinSubjectMark(Stream<Student> students, int subjectId) {
-        //TODO
-        return null;
+        return students
+                .flatMap(student -> student.getSubjectMarks().stream())
+                .filter(x -> x.getSubjectId() == subjectId)
+                .mapToInt(SubjectMark::getMark)
+                .min();
     }
 
     /**
@@ -26,8 +35,11 @@ public class UniversityAnalyzer {
      * @return
      */
     public OptionalDouble getAverageTeacherMark(Stream<Student> students, int teacherId) {
-        //TODO
-        return null;
+        return students
+                .flatMap(student -> student.getSubjectMarks().stream())
+                .filter(x -> x.getTeacherId() == teacherId)
+                .mapToDouble(SubjectMark::getMark)
+                .average();
     }
 
     /**
@@ -37,8 +49,11 @@ public class UniversityAnalyzer {
      * @return
      */
     public Integer getMinStudentAgeInYears(Stream<Student> students) {
-        //TODO
-        return null;
+        return students
+                .map(x -> Period.between(x.getBirthday(), LocalDate.now()).getYears())
+                .mapToInt(x -> x)
+                .min()
+                .orElse(-1);
     }
 
     /**
@@ -49,10 +64,17 @@ public class UniversityAnalyzer {
      * @return
      */
     public Student getStudentWithHighestAverageMark(Stream<Student> students) {
-        //TODO
-        return null;
+        return students
+                .collect(Collectors.toMap(s -> s, s -> s
+                        .getSubjectMarks()
+                        .stream()
+                        .mapToDouble(SubjectMark::getMark)
+                        .average()))
+                .entrySet()
+                .stream()
+                .max(Comparator.comparingDouble((e) -> e.getValue().orElse(0.0)))
+                .orElseThrow().getKey();
     }
-
     /**
      * Return sorted students list.
      * If two students have the same count of marks, then students should be ordered by surname
@@ -61,8 +83,10 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Student> sortStudentsByCountOfMarks(Stream<Student> students) {
-        //TODO
-        return null;
+        return students
+                .sorted((Comparator.comparing((Student x) -> x.getSubjectMarks().size()).reversed())
+                        .thenComparing(Student::getSurname))
+                .toList();
     }
 
     /**
