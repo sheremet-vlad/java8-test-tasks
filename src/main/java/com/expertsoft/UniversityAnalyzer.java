@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 import java.util.Comparator;
+import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -96,8 +97,14 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Integer> getSubjectsByAcademicPerformance(Stream<Student> students) {
-        //TODO
-        return null;
+        return students
+                .flatMap(x -> x.getSubjectMarks().stream())
+                .collect(Collectors.toMap(SubjectMark::getSubjectId, SubjectMark::getMark, Integer::sum))
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
     /**
@@ -108,8 +115,13 @@ public class UniversityAnalyzer {
      * @return
      */
     public Subject getSubjectThatMostTeachersLead(Stream<Teacher> teachers) {
-        //TODO
-        return null;
+        return teachers
+                .flatMap(t -> t.getTaughtSubjects().stream())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .max(Comparator.comparingLong(Map.Entry::getValue))
+                .orElseThrow().getKey();
     }
 
     /**
