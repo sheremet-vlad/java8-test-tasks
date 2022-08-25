@@ -76,6 +76,7 @@ public class UniversityAnalyzer {
                 .max(Comparator.comparingDouble((e) -> e.getValue().orElse(0.0)))
                 .orElseThrow().getKey();
     }
+
     /**
      * Return sorted students list.
      * If two students have the same count of marks, then students should be ordered by surname
@@ -133,8 +134,10 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Student> getGraduatedExcellentStudents(Stream<Student> students) {
-        //TODO
-        return null;
+        return students
+                .filter(x -> Period.between(x.getBirthday(), LocalDate.now()).getYears() >= 21)
+                .filter(x -> x.getSubjectMarks().stream().mapToDouble(SubjectMark::getMark).average().orElse(0.0) >= 8)
+                .toList();
     }
 
     /**
@@ -145,8 +148,23 @@ public class UniversityAnalyzer {
      * @return
      */
     public Teacher getHeadOfTheMostSuccessfulDepartment(Stream<Department> departments) {
-        //TODO
-        return null;
+        return departments
+                .collect(Collectors.toMap(Department::getHead, x -> x
+                        .getStudents()
+                        .stream()
+                        .flatMap(s -> s
+                                .getSubjectMarks()
+                                .stream()
+                        )
+                        .mapToDouble(SubjectMark::getMark)
+                        .average()
+                        .orElse(0.0)
+                ))
+                .entrySet()
+                .stream()
+                .max(Comparator.comparingDouble(Map.Entry::getValue))
+                .orElseThrow()
+                .getKey();
     }
 
     /**
@@ -156,7 +174,15 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Subject> getSubjectsThatHeadTeachesInHisDepartment(Department department) {
-        //TODO
-        return null;
+        return department
+                .getHead()
+                .getTaughtSubjects()
+                .stream()
+                .filter(s -> department
+                        .getSubjects()
+                        .stream()
+                        .mapToInt(Subject::getId)
+                        .anyMatch(x -> x == s.getId()))
+                .toList();
     }
 }
