@@ -100,10 +100,11 @@ public class UniversityAnalyzer {
     public List<Integer> getSubjectsByAcademicPerformance(Stream<Student> students) {
         return students
                 .flatMap(x -> x.getSubjectMarks().stream())
-                .collect(Collectors.toMap(SubjectMark::getSubjectId, SubjectMark::getMark, Integer::sum))
+                .collect(Collectors.groupingBy(SubjectMark::getSubjectId,
+                        Collectors.averagingDouble(SubjectMark::getMark)))
                 .entrySet()
                 .stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .toList();
     }
