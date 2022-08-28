@@ -2,7 +2,10 @@ package com.expertsoft;
 
 import com.expertsoft.model.*;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UniversityAnalyzer {
@@ -14,8 +17,10 @@ public class UniversityAnalyzer {
      * @return
      */
     public OptionalInt getMinSubjectMark(Stream<Student> students, int subjectId) {
-        //TODO
-        return null;
+        return students.flatMap(student -> student.getSubjectMarks().stream())
+                .filter(subjectMark -> subjectMark.getSubjectId() == subjectId)
+                .mapToInt(SubjectMark::getMark)
+                .min();
     }
 
     /**
@@ -26,8 +31,9 @@ public class UniversityAnalyzer {
      * @return
      */
     public OptionalDouble getAverageTeacherMark(Stream<Student> students, int teacherId) {
-        //TODO
-        return null;
+        return students.flatMap(student -> student.getSubjectMarks().stream())
+                .filter(subjectMark -> subjectMark.getTeacherId() == teacherId)
+                .mapToInt(SubjectMark::getMark).average();
     }
 
     /**
@@ -37,8 +43,10 @@ public class UniversityAnalyzer {
      * @return
      */
     public Integer getMinStudentAgeInYears(Stream<Student> students) {
-        //TODO
-        return null;
+        return students.map(Student::getBirthday)
+                .mapToInt(LocalDate::getYear)
+                .map(year -> LocalDate.now().getYear() - year)
+                .min().orElseThrow(NullPointerException::new);
     }
 
     /**
@@ -49,8 +57,12 @@ public class UniversityAnalyzer {
      * @return
      */
     public Student getStudentWithHighestAverageMark(Stream<Student> students) {
-        //TODO
-        return null;
+        return students.collect(Collectors.toMap(Function.identity(), student -> student.getSubjectMarks().stream()
+                        .map(SubjectMark::getMark)
+                        .reduce(Integer::sum).get().doubleValue() / student.getSubjectMarks().size()))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue()).get().getKey();
     }
 
     /**
@@ -61,8 +73,9 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Student> sortStudentsByCountOfMarks(Stream<Student> students) {
-        //TODO
-        return null;
+        return students.sorted(Comparator.comparing((Student student) -> student.getSubjectMarks().size()).reversed()
+                        .thenComparing(Student::getSurname))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -72,8 +85,13 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Integer> getSubjectsByAcademicPerformance(Stream<Student> students) {
-        //TODO
-        return null;
+        return students.flatMap(student -> student.getSubjectMarks().stream())
+                .collect(Collectors.groupingBy(SubjectMark::getSubjectId, Collectors.averagingDouble(SubjectMark::getMark)))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -84,8 +102,14 @@ public class UniversityAnalyzer {
      * @return
      */
     public Subject getSubjectThatMostTeachersLead(Stream<Teacher> teachers) {
-        //TODO
-        return null;
+        return teachers.collect(Collectors.toMap(Function.identity(), Teacher::getTaughtSubjects))
+                .entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .get().getKey();
     }
 
     /**
@@ -97,8 +121,19 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Student> getGraduatedExcellentStudents(Stream<Student> students) {
-        //TODO
-        return null;
+        return students.collect(Collectors.toMap(Function.identity(), Student::getBirthday)).entrySet()
+                .stream()
+                .filter(entry -> LocalDate.now().getYear() - entry.getValue().getYear() >= 21)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toMap(Function.identity(), student -> student.getSubjectMarks().stream()
+                        .map(SubjectMark::getMark)
+                        .reduce(Integer::sum).get().doubleValue() / student.getSubjectMarks().size()))
+                .entrySet()
+                .stream()
+                .filter(studentDoubleEntry -> studentDoubleEntry.getValue() >= 8)
+                .map(Map.Entry::getKey)
+                .sorted(Comparator.comparing(Student::getSurname))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -109,8 +144,17 @@ public class UniversityAnalyzer {
      * @return
      */
     public Teacher getHeadOfTheMostSuccessfulDepartment(Stream<Department> departments) {
-        //TODO
-        return null;
+        return departments.collect(Collectors.toMap(Function.identity(), Department::getStudents))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+                        .collect(Collectors.toMap(Function.identity(), student -> student.getSubjectMarks().stream()
+                                .map(SubjectMark::getMark)
+                                .reduce(Integer::sum).get().doubleValue() / student.getSubjectMarks().size()))
+                        .entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue)).get()))
+                .entrySet()
+                .stream()
+                .max(Comparator.comparingDouble(entry -> entry.getValue().getValue())).get().getKey().getHead();
     }
 
     /**
@@ -120,7 +164,10 @@ public class UniversityAnalyzer {
      * @return
      */
     public List<Subject> getSubjectsThatHeadTeachesInHisDepartment(Department department) {
-        //TODO
-        return null;
+        List<Integer> subjects = department.getSubjects().stream().map(Subject::getId).collect(Collectors.toList());
+        return department.getHead().getTaughtSubjects()
+                .stream()
+                .filter(subject -> subjects.contains(subject.getId()))
+                .collect(Collectors.toList());
     }
 }
